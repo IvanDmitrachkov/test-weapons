@@ -36,7 +36,7 @@ function App() {
   return (
     <div className="App">
       <div className="counter">
-        Вопрос {step + 1} из {list.length}
+        Вопрос {step + 1} из {list.length} !!
       </div>
       <div className="title">{title}</div>
       <div>
