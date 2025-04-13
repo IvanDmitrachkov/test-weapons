@@ -1,15 +1,12 @@
-name: CI/CD for Create React App
+name: Deploy Create React App
 
 on:
   push:
     branches:
-      - main
-  pull_request:
-    branches:
-      - main
+      - main  # Укажите ветку, на которую будет происходить пуш
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
@@ -19,40 +16,22 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '18' # Укажите нужную версию Node.js
+          node-version: '20'  # Укажите нужную версию Node.js
 
       - name: Install dependencies
         run: npm install
 
-      - name: Build application
-        run: npm run build
+      - name: Build the project
+        run: npm run build  # Сборка приложения
 
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build
-    if: github.ref == 'refs/heads/main'
-    env:
-      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }} # Ваш приватный ключ SSH
-      SERVER_USER: ${{ secrets.SERVER_USER }} # Имя пользователя на сервере
-      SERVER_IP: ${{ secrets.SERVER_IP }} # IP-адрес вашего сервера
-      SERVER_PATH: ${{ secrets.SERVER_PATH }} # Путь к директории на сервере для развертывания
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      
-      - name: Add server to known_hosts
-        run: |
-          mkdir -p ~/.ssh
-          ssh-keyscan -H $SERVER_IP >> ~/.ssh/known_hosts || true
+      - name: Install sshpass
+        run: sudo apt-get install -y sshpass  # Установка sshpass для использования пароля
 
       - name: Copy files to server via SSH
+        env:
+          SERVER_USER: ${{ secrets.SERVER_USER }}       # Имя пользователя для SSH
+          SERVER_IP: ${{ secrets.SERVER_IP }}           # IP-адрес сервера
+          SERVER_PATH: ${{ secrets.SERVER_PATH }}       # Путь на сервере, куда будут копироваться файлы
+          SERVER_PASSWORD: ${{ secrets.PASSWORD }} # Пароль для SSH
         run: |
-          ls 
-          
-          # Копируем файлы на сервер с помощью rsync
-          sshpass -p ${{ secrets.PASSWORD }} rsync -avz --delete ./build/ $SERVER_USER@$SERVER_IP:$SERVER_PATH
-
-          # Подключаемся к серверу и выполняем команды для перезапуска приложения (если необходимо)
-          # sshpass -p ${{ secrets.PASSWORD }} ssh -i private_key.pem $SERVER_USER@$SERVER_IP "cd $SERVER_PATH && npm install"
-
+          sshpass -p "$SERVER_PASSWORD" rsync -avz --delete ./build/ $SERVER_USER@$SERVER_IP:$SERVER_PATH
