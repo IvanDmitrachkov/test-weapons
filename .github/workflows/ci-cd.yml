@@ -40,7 +40,7 @@ jobs:
         run: |
           echo "Server IP: $SERVER_IP"
           echo "Server User: $SERVER_USER"
-          echo "Test ${{ secrets.SERVER_IP }} $SERVER_IP v"
+          echo "Test ${{ secrets.SERVER_IP }} $SERVER_USER"
 
       - name: Check server availability
         run: |
@@ -59,11 +59,11 @@ jobs:
           SERVER_IP: ${{ secrets.SERVER_IP }} # IP-адрес вашего сервера
           SERVER_PATH: ${{ secrets.SERVER_PATH }} # Путь к директории на сервере для развертывания
         run: |
-          echo "$SSH_PRIVATE_KEY" > private_key.pem
+          echo ${{ secrets.SSH_PRIVATE_KEY }} > private_key.pem
           chmod 600 private_key.pem
 
           # Копируем файлы на сервер с помощью rsync
-          rsync -avz --delete ./build/ $SERVER_USER@$SERVER_IP:$SERVER_PATH
+          rsync -avz --delete ./build/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:$SERVER_PATH
 
           # Подключаемся к серверу и выполняем команды для перезапуска приложения (если необходимо)
-          ssh -i private_key.pem $SERVER_USER@$SERVER_IP "cd $SERVER_PATH && npm install"
+          ssh -i private_key.pem ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} "cd ${{ secrets.SERVER_PATH }} && npm install"
