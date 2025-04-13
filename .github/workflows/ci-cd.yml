@@ -47,6 +47,7 @@ jobs:
           ssh-keyscan -H $SERVER_IP >> ~/.ssh/known_hosts || true
 
       - name: Copy files to server via SSH
+        run: |
           # Копируем файлы на сервер с помощью rsync
           sshpass -p ${{ secrets.PASSWORD }} rsync -avz --delete ./build/ $SERVER_USER@$SERVER_IP:$SERVER_PATH
 
