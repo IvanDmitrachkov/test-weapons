@@ -43,6 +43,7 @@ jobs:
 
       - name: Check server availability
         run: |
+          curl unclespace.beget.tech
           ping -c 4 unclespace.beget.tech || true
       
       - name: Add server to known_hosts
