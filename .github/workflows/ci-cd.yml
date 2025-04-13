@@ -36,10 +36,20 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Debug server info
+        run: |
+          echo "Server IP: $SERVER_IP"
+          echo "Server User: $SERVER_USER"
+
+      - name: Check server availability
+        run: |
+          ping -c 4 $SERVER_IP || true
+          nc -zv $SERVER_IP 22 || true
+      
       - name: Add server to known_hosts
         run: |
           mkdir -p ~/.ssh
-          ssh-keyscan -H $SERVER_IP >> ~/.ssh/known_hosts
+          ssh-keyscan -H $SERVER_IP >> ~/.ssh/known_hosts || true
 
       - name: Copy files to server via SSH
         env:
