@@ -6,7 +6,7 @@ on:
       - main  # Укажите ветку, на которую будет происходить пуш
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
 
     steps:
@@ -24,6 +24,27 @@ jobs:
       - name: Build the project
         run: npm run build  # Сборка приложения
 
+      - name: Archive build artifacts
+        run: |
+          mkdir -p artifacts
+          cp -r build/* artifacts/  # Копируем собранные файлы в артефакты
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: build-artifacts
+          path: artifacts/
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build  # Зависимость от job'а сборки
+
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: build-artifacts
+
       - name: Install sshpass
         run: sudo apt-get install -y sshpass  # Установка sshpass для использования пароля
 
@@ -39,4 +60,7 @@ jobs:
           SERVER_PATH: ${{ secrets.SERVER_PATH }}       # Путь на сервере, куда будут копироваться файлы
           SERVER_PASSWORD: ${{ secrets.PASSWORD }} # Пароль для SSH
         run: |
-          sshpass -p "$SERVER_PASSWORD" rsync -avz --delete ./build/ $SERVER_USER@$SERVER_IP:$SERVER_PATH
+          sshpass -p "$SERVER_PASSWORD" rsync -avz --delete ./artifacts/ $SERVER_USER@$SERVER_IP:$SERVER_PATH
+
+      - name: Clean up after deployment
+        run: echo "Deployment completed successfully!"  # Сообщение о завершении развертывания
