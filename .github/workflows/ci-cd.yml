@@ -48,9 +48,11 @@ jobs:
 
       - name: Copy files to server via SSH
         run: |
+          ls 
+          
           # Копируем файлы на сервер с помощью rsync
           sshpass -p ${{ secrets.PASSWORD }} rsync -avz --delete ./build/ $SERVER_USER@$SERVER_IP:$SERVER_PATH
 
           # Подключаемся к серверу и выполняем команды для перезапуска приложения (если необходимо)
-          sshpass -p ${{ secrets.PASSWORD }} ssh -i private_key.pem $SERVER_USER@$SERVER_IP "cd $SERVER_PATH && npm install"
+          # sshpass -p ${{ secrets.PASSWORD }} ssh -i private_key.pem $SERVER_USER@$SERVER_IP "cd $SERVER_PATH && npm install"
 
