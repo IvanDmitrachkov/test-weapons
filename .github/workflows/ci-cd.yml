@@ -40,6 +40,7 @@ jobs:
         run: |
           echo "Server IP: $SERVER_IP"
           echo "Server User: $SERVER_USER"
+          echo "Test ${{ secrets.SERVER_IP }}""
 
       - name: Check server availability
         run: |
