@@ -44,8 +44,6 @@ jobs:
       - name: Check server availability
         run: |
           ping -c 4 unclespace.beget.tech || true
-          ping -c 4 $SERVER_IP || true
-          nc -zv $SERVER_IP 22 || true
       
       - name: Add server to known_hosts
         run: |
